@@ -35,9 +35,6 @@ if has("autocmd") " jump to last position when reopening file
   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
-
-
-
 " PLUGINS 
 call plug#begin('~/.vim/plugged/')
 Plug 'gruvbox-community/gruvbox'
@@ -63,4 +60,34 @@ nnoremap<C-P> :FZF<CR>
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
     \ quit | endif
 nnoremap <C-t> :NERDTreeToggle<CR>
+
+" Treesitter"
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = { "c", "rust" },  -- list of language that will be disabled
+  },
+}
+EOF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
