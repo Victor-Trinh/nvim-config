@@ -1,18 +1,8 @@
-let mapleader = " "  
+let mapleader = ","    
 " tab config 
-set tabstop=4 softtabstop=4
-set shiftwidth=4
+" - tab size is auto set by vim-sleuth
 set expandtab
 set smartindent
-
-" auto closing delimiter
-inoremap " ""<left>
-inoremap ' ''<left>
-inoremap ( ()<left>
-inoremap [ []<left>
-inoremap { {}<left>
-inoremap {<CR> {<CR>}<ESC>O
-inoremap {;<CR> {<CR>};<ESC>O
 
 " line numbers
 set relativenumber
@@ -22,6 +12,8 @@ set noerrorbells
 set incsearch
 set scrolloff=8
 set signcolumn=yes
+" Give more space for displaying messages.
+set cmdheight=2
 "This unsets the "last search pattern" register by hitting return
 nnoremap <CR> :noh<CR><CR>
 
@@ -39,13 +31,15 @@ endif
 call plug#begin('~/.vim/plugged/')
 Plug 'gruvbox-community/gruvbox'
 " Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'ctrlpvim/ctrlp.vim'
+
 Plug 'preservim/nerdtree'
 Plug 'ap/vim-buftabline'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': { -> coc#util#install() } }
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-sleuth'
+Plug 'scrooloose/nerdcommenter'
 " use coc-clangd for cpp
 " may need to do this https://github.com/clangd/coc-clangd/issues/74
 call plug#end()
@@ -53,13 +47,21 @@ call plug#end()
 colorscheme gruvbox
 highlight Normal guibg=none
 
-nnoremap<C-P> :FZF<CR>
+" ctrlp fuzzy find
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_by_filename = 0
+let g:ctrlp_working_path_mode = 'ra'
 
-" NerdTree
+" NerdTree 
 " Exit Vim if NERDTree is the only window left.
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
-    \ quit | endif
-nnoremap <C-t> :NERDTreeToggle<CR>
+"autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+"    \ quit | endif
+nnoremap <C-t> :NERDTreeToggle <CR>
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+let NERDTreeShowHidden = 1
+
 
 " Treesitter"
 lua <<EOF
@@ -72,18 +74,67 @@ require'nvim-treesitter.configs'.setup {
 }
 EOF
 
+" buftabline"
+nnoremap <C-l> :bnext<CR>
+nnoremap <C-h> :bprev<CR>
 
+" coc config
+let g:coc_global_extensions = [
+ \ 'coc-tsserver',
+ \ 'coc-python',
+ \ 'coc-json', 
+ \ 'coc-clangd',
+ \ 'coc-pairs'
+ \ ]
 
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gr <Plug>(coc-references)
+" Use K to show documentation in preview window
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
 
+" Use <Tab> and <S-Tab> to navigate the completion list:
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
+" Remap for rename current word
+nmap <F2> <Plug>(coc-rename)
 
+" NERDCommenter
+" Create default mappings
+let g:NERDCreateDefaultMappings = 1
 
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
 
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
 
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
 
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
 
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
 
+" Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines = 1
+
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+
+" Enable NERDCommenterToggle to check all selected lines is commented or not 
+let g:NERDToggleCheckAllLines = 1
 
 
 
